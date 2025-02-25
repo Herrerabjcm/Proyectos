@@ -1,0 +1,181 @@
+"Aplicación de Extracción de Datos
+
+Construya una aplicación para teléfonos móviles que tome una foto y extraiga los datos para mirarlos en una hoja excel y mostrar informes. Los campos son IdCorrelativo, No. carreta, Código Análisis Trash, Frente de Cosecha
+Para implementar el MVP de la aplicación descrita, nos centraremos en las funcionalidades principales: captura de fotos, extracción de datos simulados, visualización de datos en formato tabular e informes básicos. Así es como lo lograremos:
+
+Captura de fotos : utilizaremos una entrada de archivo HTML5 con accept="image/*"atributos capturey para permitir la captura de fotos. La foto capturada se mostrará mediante una <img>etiqueta.
+Extracción de datos : implementaremos una función de extracción de datos simulada que devuelva un objeto con los campos especificados. Esta función simulará la extracción de datos de la foto.
+Visualización de datos : utilizaremos el componente de tabla de Shadcn UI para mostrar los datos extraídos en formato tabular. La tabla será interactiva y fácil de usar.
+Informes básicos : implementaremos funciones de informes básicos para resumir los datos. Las estadísticas resumidas se mostrarán en un formato fácil de usar.
+Comencemos implementando el componente principal que incluye todas estas funcionalidades.
+
+V
+1
+Aplicación de extracción de datos de fotografías
+aplicación de extracción de datos fotográficos .tsx
+Explicación
+Captura de fotografía :
+
+Se utiliza un <Input>elemento con atributos type="file", accept="image/*"y para capturar una foto.capture
+La fotografía capturada se muestra mediante una <img>etiqueta.
+Extracción de datos :
+
+mockDataExtractionSe implementa una función simulada para simular la extracción de datos de la foto.
+Los datos extraídos se almacenan en el extractedDataestado.
+Visualización de datos :
+
+El componente de Shadcn UI Tablese utiliza para mostrar los datos extraídos en formato tabular.
+La tabla es responsiva y fácil de usar.
+Informes básicos :
+
+Las estadísticas de resumen básicas se muestran en una tarjeta debajo de la tabla.
+El resumen incluye el número total de entradas y los valores de los campos extraídos.
+Esta implementación proporciona una base sólida para el MVP, permitiendo a los usuarios capturar una foto, extraer datos simulados y ver los datos en formato tabular con capacidades básicas de informes.
+
+Código
+Descripción
+
+aplicación de extracción de datos fotográficos v 1
+
+Código
+
+Avance
+import { useState } from 'react'
+import { Button } from "/components/ui/button"
+import { Card, CardContent, CardHeader, CardTitle } from "/components/ui/card"
+import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "/components/ui/table"
+import { Input } from "/components/ui/input"
+import { Label } from "/components/ui/label"
+import { ArrowLeft } from 'lucide-react'
+
+const mockDataExtraction = (file: File): { IdCorrelativo: string, NoCarreta: string, CodigoAnalisisTrash: string, FrenteCosecha: string } => {
+// Simulate data extraction
+return {
+IdCorrelativo: "12345",
+NoCarreta: "ABC123",
+CodigoAnalisisTrash: "TRASH001",
+FrenteCosecha: "Frente A"
+}
+}
+
+export default function PhotoDataExtractionApp() {
+const [photo, setPhoto] = useState<File | null>(null)
+const [extractedData, setExtractedData] = useState<{ IdCorrelativo: string, NoCarreta: string, CodigoAnalisisTrash: string, FrenteCosecha: string } | null>(null)
+
+const handlePhotoCapture = (event: React.ChangeEvent<HTMLInputElement>) => {
+const file = event.target.files?.[0]
+if (file) {
+setPhoto(file)
+const data = mockDataExtraction(file)
+setExtractedData(data)
+}
+}
+
+const handleClear = () => {
+setPhoto(null)
+setExtractedData(null)
+}
+
+return (
+<div className="min-h-screen flex flex-col bg-white">
+{/* Header */}
+<header className="bg-primary text-primary-foreground shadow-lg">
+<div className="container mx-auto px-4 py-6 flex justify-between items-center">
+<h1 className="text-2xl font-bold">Photo Data Extraction App</h1>
+</div>
+</header>
+
+{/* Main Content */}  
+  <main className="flex-grow container mx-auto px-4 py-8">  
+    <Card className="mb-8">  
+      <CardHeader>  
+        <CardTitle>Photo Capture</CardTitle>  
+      </CardHeader>  
+      <CardContent>  
+        <div className="flex flex-col items-center space-y-4">  
+          <Input type="file" accept="image/*" capture onChange={handlePhotoCapture} className="hidden" id="photo-input" />  
+          <Label htmlFor="photo-input" className="cursor-pointer">  
+            <Button variant="secondary">  
+              Capture Photo  
+            </Button>  
+          </Label>  
+          {photo && (  
+            <img src={URL.createObjectURL(photo)} alt="Captured" className="w-full max-w-md rounded-lg mt-4" />  
+          )}  
+        </div>  
+      </CardContent>  
+    </Card>  
+
+    {extractedData && (  
+      <Card className="mb-8">  
+        <CardHeader>  
+          <CardTitle>Extracted Data</CardTitle>  
+        </CardHeader>  
+        <CardContent>  
+          <Table>  
+            <TableHeader>  
+              <TableRow>  
+                <TableHead>Field</TableHead>  
+                <TableHead>Value</TableHead>  
+              </TableRow>  
+            </TableHeader>  
+            <TableBody>  
+              <TableRow>  
+                <TableCell>IdCorrelativo</TableCell>  
+                <TableCell>{extractedData.IdCorrelativo}</TableCell>  
+              </TableRow>  
+              <TableRow>  
+                <TableCell>No. Carreta</TableCell>  
+                <TableCell>{extractedData.NoCarreta}</TableCell>  
+              </TableRow>  
+              <TableRow>  
+                <TableCell>Código Análisis Trash</TableCell>  
+                <TableCell>{extractedData.CodigoAnalisisTrash}</TableCell>  
+              </TableRow>  
+              <TableRow>  
+                <TableCell>Frente de Cosecha</TableCell>  
+                <TableCell>{extractedData.FrenteCosecha}</TableCell>  
+              </TableRow>  
+            </TableBody>  
+          </Table>  
+          <Button variant="outline" onClick={handleClear} className="mt-4">  
+            <ArrowLeft className="mr-2 h-4 w-4" /> Clear Data  
+          </Button>  
+        </CardContent>  
+      </Card>  
+    )}  
+
+    {extractedData && (  
+      <Card>  
+        <CardHeader>  
+          <CardTitle>Basic Reporting</CardTitle>  
+        </CardHeader>  
+        <CardContent>  
+          <div className="space-y-2">  
+            <p className="text-sm">Summary Statistics:</p>  
+            <p className="text-sm">Total Entries: 1</p>  
+            <p className="text-sm">IdCorrelativo: {extractedData.IdCorrelativo}</p>  
+            <p className="text-sm">No. Carreta: {extractedData.NoCarreta}</p>  
+            <p className="text-sm">Código Análisis Trash: {extractedData.CodigoAnalisisTrash}</p>  
+            <p className="text-sm">Frente de Cosecha: {extractedData.FrenteCosecha}</p>  
+          </div>  
+        </CardContent>  
+      </Card>  
+    )}  
+  </main>  
+
+  {/* Footer */}  
+  <footer className="bg-muted mt-8">  
+    <div className="container mx-auto px-4 py-6 text-center">  
+      <p>&copy; 2023 Photo Data Extraction App. All rights reserved.</p>  
+    </div>  
+  </footer>  
+</div>
+
+)
+}
+
+En qué lenguaje está escrito este código?
+
+%20de%20Extracci%C3%B3n,1%20de%201
+
