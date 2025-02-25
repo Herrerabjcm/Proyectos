@@ -1,0 +1,64 @@
+/* Estructura del Proyecto */
+
+// Backend - Node.js con Express y MongoDB
+const express = require('express');
+const mongoose = require('mongoose');
+const cors = require('cors');
+const app = express();
+
+app.use(cors());
+app.use(express.json());
+
+mongoose.connect('mongodb://localhost:27017/comercio', {
+    useNewUrlParser: true,
+    useUnifiedTopology: true
+});
+
+const ProductoSchema = new mongoose.Schema({
+    nombre: String,
+    precio: Number,
+    stock: Number
+});
+
+const Producto = mongoose.model('Producto', ProductoSchema);
+
+app.get('/productos', async (req, res) => {
+    const productos = await Producto.find();
+    res.json(productos);
+});
+
+app.post('/productos', async (req, res) => {
+    const nuevoProducto = new Producto(req.body);
+    await nuevoProducto.save();
+    res.status(201).json(nuevoProducto);
+});
+
+app.listen(5000, () => {
+    console.log('Servidor corriendo en el puerto 5000');
+});
+
+// Frontend - React con JSX y JSON
+import React, { useEffect, useState } from 'react';
+import axios from 'axios';
+
+const App = () => {
+    const [productos, setProductos] = useState([]);
+
+    useEffect(() => {
+        axios.get('http://localhost:5000/productos')
+            .then(response => setProductos(response.data));
+    }, []);
+
+    return (
+        <div>
+            <h1>Lista de Productos</h1>
+            <ul>
+                {productos.map(producto => (
+                    <li key={producto._id}>{producto.nombre} - ${producto.precio}</li>
+                ))}
+            </ul>
+        </div>
+    );
+};
+
+export default App;
