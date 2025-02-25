@@ -1,0 +1,171 @@
+### Sistema de Inventario con Lector de Código de Barras
+
+#### Tecnologías Utilizadas:
+- **Backend:** C# y .NET
+- **API:** Node.js
+- **Frontend:** HTML5, PHP, JavaScript, Bootstrap
+- **Base de Datos:** MySQL
+- **Exportación:** Excel
+- **Autenticación:** JWT (JSON Web Token)
+- **Control de Acceso:** Roles de usuario (Administrador, Operador, Consultor)
+
+---
+
+## Funcionalidades
+1. **Registro de Entradas y Salidas**: Escanea códigos de barras para registrar la entrada y salida de productos.
+2. **Base de Datos Centralizada**: Almacena los datos en MySQL para su posterior consulta y análisis.
+3. **Generación de Reportes**: Exporta reportes en formato Excel con detalles de inventario.
+4. **Interfaz Web**: Panel web para visualizar el inventario y gestionar productos.
+5. **Autenticación y Control de Acceso**: Sistema de login seguro con roles de usuario.
+6. **Notificaciones**: Alertas cuando los productos llegan a un nivel de stock mínimo.
+7. **Búsqueda y Filtrado Avanzado**: Opciones para filtrar y buscar productos en el inventario.
+8. **Historial de Movimientos**: Registro detallado de todas las acciones realizadas en el sistema.
+
+---
+
+## Estructura de la Base de Datos
+
+### Diseño Lógico
+#### Tablas Principales:
+
+**usuarios**
+- id_usuario (INT, PRIMARY KEY, AUTO_INCREMENT)
+- nombre (VARCHAR(100))
+- usuario (VARCHAR(50), UNIQUE)
+- password (VARCHAR(255))
+- rol (ENUM('Administrador', 'Operador', 'Consultor'))
+
+**productos**
+- id_producto (INT, PRIMARY KEY, AUTO_INCREMENT)
+- codigo (VARCHAR(50), UNIQUE)
+- nombre (VARCHAR(100))
+- descripcion (TEXT)
+- stock (INT)
+- precio (DECIMAL(10,2))
+
+**movimientos**
+- id_movimiento (INT, PRIMARY KEY, AUTO_INCREMENT)
+- id_producto (INT, FOREIGN KEY)
+- tipo (ENUM('entrada', 'salida'))
+- cantidad (INT)
+- fecha (DATETIME)
+- id_usuario (INT, FOREIGN KEY)
+
+**notificaciones**
+- id_notificacion (INT, PRIMARY KEY, AUTO_INCREMENT)
+- mensaje (TEXT)
+- fecha (DATETIME)
+
+---
+
+## Capturas de Pantalla
+(Incluir imágenes del sistema funcionando)
+
+---
+
+## URL para Visualización
+(Proporcionar una URL donde se pueda acceder al sistema en un navegador como Chrome)
+
+---
+
+### Código Fuente
+
+#### Backend en C# y .NET
+```csharp
+using System;
+using System.Data.SqlClient;
+
+class Program {
+    static void Main() {
+        Console.WriteLine("Sistema de Inventario Iniciado...");
+        // Código para manejar escaneo de códigos de barras y almacenarlo en la BD
+    }
+}
+```
+
+#### API en Node.js
+```javascript
+const express = require('express');
+const mysql = require('mysql');
+const jwt = require('jsonwebtoken');
+const cors = require('cors');
+
+const app = express();
+app.use(cors());
+app.use(express.json());
+
+const db = mysql.createConnection({
+    host: 'localhost',
+    user: 'root',
+    password: '',
+    database: 'inventario'
+});
+
+app.post('/login', (req, res) => {
+    const { usuario, password } = req.body;
+    db.query('SELECT * FROM usuarios WHERE usuario = ? AND password = ?', [usuario, password], (err, result) => {
+        if (err) throw err;
+        if (result.length > 0) {
+            const token = jwt.sign({ usuario }, 'secreto', { expiresIn: '1h' });
+            res.json({ token });
+        } else {
+            res.status(401).json({ mensaje: 'Credenciales incorrectas' });
+        }
+    });
+});
+
+app.get('/productos', (req, res) => {
+    db.query('SELECT * FROM productos', (err, result) => {
+        if (err) throw err;
+        res.send(result);
+    });
+});
+
+app.listen(3000, () => console.log('API corriendo en el puerto 3000'));
+```
+
+#### Frontend en HTML5, PHP y Bootstrap
+```html
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Inventario</title>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css">
+</head>
+<body>
+    <div class="container">
+        <h1>Registro de Productos</h1>
+        <input type="text" id="codigo_barras" class="form-control" placeholder="Escanea el código">
+        <button class="btn btn-primary mt-2" onclick="registrar()">Registrar</button>
+    </div>
+    
+    <script>
+        function registrar() {
+            let codigo = document.getElementById('codigo_barras').value;
+            fetch('registrar.php?codigo=' + codigo);
+        }
+    </script>
+</body>
+</html>
+```
+
+#### PHP para Guardado en MySQL
+```php
+<?php
+$conexion = new mysqli('localhost', 'root', '', 'inventario');
+$codigo = $_GET['codigo'];
+$conexion->query("INSERT INTO productos (codigo) VALUES ('$codigo')");
+?>
+```
+
+#### Reporte en Excel
+```csharp
+using OfficeOpenXml;
+...
+var package = new ExcelPackage();
+var worksheet = package.Workbook.Worksheets.Add("Inventario");
+worksheet.Cells["A1"].Value = "Código";
+worksheet.Cells["B1"].Value = "Producto";
+...
+```
+
